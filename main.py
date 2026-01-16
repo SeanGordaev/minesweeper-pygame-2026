@@ -19,7 +19,7 @@ def BombCounter(array, x, y):
 
 
 #* ---------| World Setup |---------
-world = np.ones((15, 15), dtype=int)
+world = np.ones((12, 12), dtype=int)
 
 world *= -1
 
@@ -27,7 +27,7 @@ BOMB = 9
 
 bombs = []
 i = 0
-while i < world.shape[0] + 5:
+while i < world.shape[0] * 1.5:
     x, y = rnd.randint(0, world.shape[0] - 1), rnd.randint(0, world.shape[1] - 1)
     if (world[y, x] != BOMB):
         world[y, x] = BOMB
@@ -79,65 +79,67 @@ block_size = 50
 margin = 2.5
 
 
+def Main():
+    display = pg.display.set_mode((w * block_size, h * block_size))
+    pg.display.set_caption("Saper =)")
 
-display = pg.display.set_mode((w * block_size, h * block_size))
-pg.display.set_caption("Saper =)")
+
+    blocks: list[Block] = []
+    for ind_y, val_y in enumerate(world):
+            for ind_x, val_x in enumerate(val_y):
+                blocks.append(Block(display, ind_x, ind_y, block_size, margin))
+
+    isLeftClick = False
+    isRightClick = False
+
+    allMarks = []
+
+    isMark = True
+    run = True
+    while run:
+        display.fill((255, 255, 255))
+
+        for ind, block in enumerate(blocks): 
+            block.draw()
+
+            if (block.onClick(0)) and (not isLeftClick):
+
+                pos_blokc = block.GetPos()
+                if (world[pos_blokc[0], pos_blokc[1]] == BOMB): # got on bomb
+                    block.SetColor(Change(9)[0], Change(9)[1])
+                    block.SetText("B")
+                    run = False
+                if (0 < world[pos_blokc[0], pos_blokc[1]] < 9): # got on number
+                    blockColor, borderColor = Change(world[pos_blokc[0], pos_blokc[1]])
+
+                    block.SetColor(blockColor, borderColor)
+                    block.SetText(str(world[pos_blokc[0], pos_blokc[1]]))
+                if (world[pos_blokc[0], pos_blokc[1]] == 0): # got on empty place
+                    CleanPlace(world, blocks, pos_blokc[1], pos_blokc[0])
+
+                isLeftClick = True
+
+            if (block.onClick(2)) and (not isRightClick):
+                block.Mark()
+                isRightClick = True
+                allMarks.append(block.GetPos())
 
 
+        if (not pg.mouse.get_pressed()[0]):
+            isLeftClick = False
+        if (not pg.mouse.get_pressed()[2]):
+            isRightClick = False
 
-blocks: list[Block] = []
-for ind_y, val_y in enumerate(world):
-        for ind_x, val_x in enumerate(val_y):
-            blocks.append(Block(display, ind_x, ind_y, block_size, margin))
+        if (Equals(allMarks, bombs)): # detect if user marked all bombs
+            print("Win")
 
-isLeftClick = False
-isRightClick = False
-
-allMarks = []
-
-isMark = True
-run = True
-while run:
-    display.fill((255, 255, 255))
-
-    for ind, block in enumerate(blocks): 
-        block.draw()
-
-        if (block.onClick(0)) and (not isLeftClick):
-
-            pos_blokc = block.GetPos()
-            if (world[pos_blokc[0], pos_blokc[1]] == BOMB): # got on bomb
-                block.SetColor(Change(9)[0], Change(9)[1])
-                block.SetText("B")
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
                 run = False
-            if (0 < world[pos_blokc[0], pos_blokc[1]] < 9): # got on number
-                blockColor, borderColor = Change(world[pos_blokc[0], pos_blokc[1]])
 
-                block.SetColor(blockColor, borderColor)
-                block.SetText(str(world[pos_blokc[0], pos_blokc[1]]))
-            if (world[pos_blokc[0], pos_blokc[1]] == 0): # got on empty place
-                CleanPlace(world, blocks, pos_blokc[1], pos_blokc[0])
-
-            isLeftClick = True
-
-        if (block.onClick(2)) and (not isRightClick):
-            block.Mark()
-            isRightClick = True
-            allMarks.append(block.GetPos())
+        pg.display.flip()
+        pg.time.Clock().tick(60)
+    pg.quit()
 
 
-    if (not pg.mouse.get_pressed()[0]):
-        isLeftClick = False
-    if (not pg.mouse.get_pressed()[2]):
-        isRightClick = False
-
-    if (Equals(allMarks, bombs)): # detect if user marked all bombs
-        print("Win")
-
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            run = False
-
-    pg.display.flip()
-    pg.time.Clock().tick(60)
-pg.quit()
+Main()
