@@ -68,6 +68,12 @@ class Block:
     def GetText(self):
         return self.text
     
+    def SetSize(self, w, h):
+        self.Rect = pg.Rect(self.x * w + self.margin, 
+                            self.y * h + self.margin, 
+                            w - self.margin * 2, 
+                            h - self.margin * 2)
+    
     def SetText(self, text):
         self.preText = self.text
 
