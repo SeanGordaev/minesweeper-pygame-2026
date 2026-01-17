@@ -32,7 +32,7 @@ class Game:
             self.root.fill((255, 255, 255))
 
             self.root.blit(text_surf, text_rect)
-
+ 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     run = False
