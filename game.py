@@ -1,54 +1,65 @@
-import pygame as pg
-import block
-pg.init()
+import numpy as np
+import random as rnd
 
 class Game:
     def __init__(self):
-        self.w, self.h = 500, 500
+        self.world = np.ones((12, 12), dtype=int)
+        self.world *= -1
 
-        self.root = pg.display.set_mode((self.w, self.h))
-        pg.display.set_caption("Menu")
+        self.BOMB = 9
+        self.bombs = []
 
-        self.text = ""
-        self.font = pg.font.Font(None, 80)
+        self.SafeBlockSet = False
 
+        self.MakeBombs()
+        self.SetCount()
+        self.FoundSafeBlock()
 
+    def MakeBombs(self):
+        i = 0
+        while i < self.world.shape[0] * 1.75:
+            y, x = rnd.randint(0, self.world.shape[0] - 1), rnd.randint(0, self.world.shape[1] - 1)
+            if (self.world[y, x] != self.BOMB):
+                self.world[y, x] = self.BOMB
+                self.bombs.append((y, x))
+                i += 1
 
-        self.Game()
+    def SetCount(self):
+        for ind_y, val_y in enumerate(self.world):
+            for ind_x, _ in enumerate(val_y):
+                if self.world[ind_y, ind_x] != self.BOMB: 
+                    self.world[ind_y, ind_x] = self.BombCounter(ind_x, ind_y)
 
-
-    def SetSizeDisplay(self, w, h):
-        self.root = pg.display.set_mode((w, h))
-
-    def Menu(self):
-
-        text = "Minesweeper"
-        text_surf = self.font.render(text, True, (0, 0, 0))
-        text_rect = text_surf.get_rect()
-        text_rect.center = (self.w / 2, self.h / 4 + self.font.get_height() / 2)
-
-        run = True
-        while run:
-            self.root.fill((255, 255, 255))
-
-            self.root.blit(text_surf, text_rect)
- 
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    run = False
-
-            pg.display.flip()
-            pg.time.Clock().tick(60)
-        pg.quit()
-
-
-    def Game(self):
-        self.Menu()
-
-        self.SetSizeDisplay(1000, 700)
-
-        self.Menu()
-
-if __name__ == "__main__":
-    t = Game()
+    def BombCounter(self, x, y):
+        count = 0
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if (self.Control(x + j, y + i)):
+                    if self.world[y + i, x + j] == self.BOMB:
+                        count += 1
+        return count
     
+    def FoundSafeBlock(self):
+        for ind_y, val_y in enumerate(self.world):
+            for ind_x, _ in enumerate(val_y):
+                if (not self.SafeBlockSet and self.world[ind_y, ind_x] == 0):
+                    # self.SafeBlockSet = True
+                    self.world[ind_y, ind_x] == 1
+
+    def Control(self, x, y, min_X = 0, min_Y = 0):
+        max_X = len(self.world) - 1
+        max_Y = len(self.world[0]) - 1
+        if ((min_X <= x <= max_X) and (min_Y <= y <= max_Y)):
+            return True
+        return False
+
+    
+    def Equals(self, A1, A2):
+        if (len(A1) != len(A2)):
+            return False
+        
+        for b in A1:
+            if not (b in A2):
+                return False
+            
+        return True

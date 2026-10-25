@@ -1,5 +1,4 @@
 import pygame as pg
-from func import *
 pg.init()
 
 class Block:
@@ -14,8 +13,8 @@ class Block:
         self.preBlockColor = None
         self.preBorderColor = None
 
-        self.blockColor = Grey(152)
-        self.borderColor = Grey(100)
+        self.blockColor = self.Grey(152)
+        self.borderColor = self.Grey(100)
 
         self.Rect = pg.Rect(self.x * self.size + self.margin, 
                             self.y * self.size + self.margin, 
@@ -51,8 +50,6 @@ class Block:
         return position of block
 
         for work with numpy first cordinate is y and second cordinate is x
-
-        return (self.y, self.x)
         
         '''
 
@@ -99,3 +96,6 @@ class Block:
         pg.draw.rect(self.display, self.borderColor, self.Rect, 3, 5)
 
         self.display.blit(self.text_surf, self.text_rect)
+
+    def Grey(self, x: int):
+        return (x, x, x)
